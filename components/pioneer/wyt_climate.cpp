@@ -88,7 +88,10 @@ bool WytClimate::query_state_(bool read_only) {
     this->raw_state_[i] = buf_state_[i];
   }
   if (state_changed) {
-    ESP_LOGI(TAG, "Response: %s", esphome::format_hex(buf_state_, WYT_QUERY_RESPONSE_SIZE).c_str());
+    // Allocate a buffer 3x the size of the data
+    char response_hex[WYT_QUERY_RESPONSE_SIZE * 3]; 
+    esphome::format_hex_pretty_to(response_hex, buf_state_, WYT_QUERY_RESPONSE_SIZE);
+    ESP_LOGI(TAG, "Response: %s", response_hex);
   }
 
   uint8_t checksum = this->raw_state_[WYT_QUERY_RESPONSE_SIZE - 1];
@@ -553,7 +556,10 @@ SetCommand WytClimate::command_from_response(const StateResponse &response) {
 void WytClimate::send_command(SetCommand &command) {
   command.left_right_flow = static_cast<LeftRightFlow>(static_cast<uint8_t>(command.left_right_flow) | 0x80);
   command.checksum = this->checksum(command);
-  ESP_LOGI(TAG, "Send: %s", esphome::format_hex(command.bytes, WYT_STATE_COMMAND_SIZE).c_str());
+  // Allocate a buffer 3x the size of the data
+  char send_hex[WYT_STATE_COMMAND_SIZE * 3];
+  esphome::format_hex_pretty_to(send_hex, command.bytes, WYT_STATE_COMMAND_SIZE);
+  ESP_LOGI(TAG, "Send: %s", send_hex);
   this->write_array(command.bytes, WYT_STATE_COMMAND_SIZE);
   this->flush();
   /*
