@@ -87,7 +87,7 @@ bool WytClimate::query_state_(bool read_only) {
     this->raw_state_[i] = buf_state_[i];
   }
   if (state_changed) {
-    ESP_LOGI(TAG, "Response: %s", format_hex_pretty(buf_state_, WYT_QUERY_RESPONSE_SIZE).c_str());  // FIXME: Cleanup
+    ESP_LOGI(TAG, "Response: %s", format_hex(buf_state_, WYT_QUERY_RESPONSE_SIZE).c_str());  // FIXME: Cleanup
   }
 
   uint8_t checksum = this->raw_state_[WYT_QUERY_RESPONSE_SIZE - 1];
@@ -552,7 +552,7 @@ SetCommand WytClimate::command_from_response(const StateResponse &response) {
 void WytClimate::send_command(SetCommand &command) {
   command.left_right_flow = static_cast<LeftRightFlow>(static_cast<uint8_t>(command.left_right_flow) | 0x80);
   command.checksum = this->checksum(command);
-  ESP_LOGI(TAG, "Send: %s", format_hex_pretty(command.bytes, WYT_STATE_COMMAND_SIZE).c_str());
+  ESP_LOGI(TAG, "Send: %s", format_hex(command.bytes, WYT_STATE_COMMAND_SIZE).c_str());
   this->write_array(command.bytes, WYT_STATE_COMMAND_SIZE);
   this->flush();
   /*
